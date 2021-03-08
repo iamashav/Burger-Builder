@@ -7,7 +7,7 @@ Full featured Burdger Builder website which is also responsive built with React 
 ✔️ React\
 ✔️ Redux\
 ✔️ Enzyme\
-✔️ Jest\ 
+✔️ Jest\
 ✔️ Axios\
 ✔️ Firebase
 
