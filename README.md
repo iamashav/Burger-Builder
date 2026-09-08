@@ -38,6 +38,7 @@ npm run dev
 | `npm run lint` | oxlint |
 | `npm test` | Run the test suite once |
 | `npm run test:watch` | Run tests in watch mode |
+| `npm run deploy` | Build and deploy to Firebase Hosting |
 
 ## Architecture
 
@@ -94,17 +95,20 @@ the key hidden. Override them locally with `.env.local`, which is gitignored.
 
 ## Deployment
 
-Two GitHub Actions workflows, both gated on lint, tests and a successful build:
-
-- **`pr.yml`** — every pull request deploys to a Firebase preview channel that expires after 7 days,
-  and the URL is commented on the PR.
-- **`deploy.yml`** — a push to `master` deploys to the live channel.
-
-Both need a `FIREBASE_SERVICE_ACCOUNT_MY_REACT_BURGERBUILDER_APP` repository secret. Run
-`firebase init hosting:github` once to create it. Without it the deploy steps fail while the checks
-still run; deploy manually in the meantime with:
+Deploys to Firebase Hosting are manual:
 
 ```bash
-npm run build
-firebase deploy --only hosting
+npm run deploy
 ```
+
+That typechecks, builds to `dist/`, and uploads. It uses `npx`, so no global install is needed —
+though `npm install -g firebase-tools` makes it faster if you deploy often.
+
+First time only, authenticate the CLI (this opens a browser):
+
+```bash
+npx --yes firebase-tools login
+```
+
+CI is separate and needs no credentials: `.github/workflows/ci.yml` runs lint, tests and a build on
+every push to `master` and every pull request. It never deploys.
