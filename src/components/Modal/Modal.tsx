@@ -10,7 +10,7 @@ export interface ModalProps {
 /**
  * Built on native <dialog> deliberately: showModal() gives focus trapping, Escape to
  * close, inertness of the page behind and the ::backdrop layer for free, all of which
- * the previous transform-based modal had to fake and got wrong.
+ * a hand-rolled overlay would have to fake.
  */
 export function Modal({ open, onClose, title, children }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);

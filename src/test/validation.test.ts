@@ -14,13 +14,19 @@ describe('checkValidity', () => {
   });
 
   it('enforces length bounds', () => {
-    expect(checkValidity('1234', { minLength: 5 })).toBe(false);
-    expect(checkValidity('12345', { minLength: 5, maxLength: 5 })).toBe(true);
-    expect(checkValidity('123456', { maxLength: 5 })).toBe(false);
+    expect(checkValidity('abc', { minLength: 6 })).toBe(false);
+    expect(checkValidity('abcdef', { minLength: 6, maxLength: 60 })).toBe(true);
+    expect(checkValidity('a'.repeat(61), { maxLength: 60 })).toBe(false);
   });
 
-  // The pre-rewrite form declared isEmail but never implemented it, so every one of
-  // these strings was accepted as a valid address.
+  describe('pattern', () => {
+    it('applies to non-blank values only, leaving blanks to the required rule', () => {
+      expect(checkValidity('call me', { pattern: /^\d+$/ })).toBe(false);
+      expect(checkValidity('0123', { pattern: /^\d+$/ })).toBe(true);
+      expect(checkValidity('', { pattern: /^\d+$/ })).toBe(true);
+    });
+  });
+
   describe('isEmail', () => {
     it.each(['notanemail', 'missing@tld', '@example.com', 'spaces in@example.com', 'a@b.c'])(
       'rejects %j',

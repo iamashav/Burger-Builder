@@ -30,8 +30,17 @@ describe('<OrdersPage />', () => {
   it('lists valid orders newest first and skips records it cannot read', async () => {
     stubOrders({
       older: order(1_000, { method: 'pickup', time: 'asap' }),
-      legacy: { ingredients: { salad: 1 }, price: 4.5, userId: SIGNED_IN.userId },
-      newer: order(2_000, { method: 'delivery', street: '1 High St', city: 'Leeds', postcode: 'LS1' }),
+      malformed: { total: 4.5, userId: SIGNED_IN.userId },
+      offMenu: {
+        ...order(1_500, { method: 'pickup', time: 'asap' }),
+        lines: [{ drink: { ...DEFAULT_DRINK, tea: 'coffee' }, quantity: 1, unitPrice: 5 }],
+      },
+      newer: order(2_000, {
+        method: 'delivery',
+        street: '1 High St',
+        city: 'Leeds',
+        postcode: 'LS1',
+      }),
     });
 
     renderWithProviders(<OrdersPage />, { auth: SIGNED_IN, route: '/orders' });
