@@ -9,8 +9,7 @@ afterEach(() => {
 });
 
 describe('<AuthPage />', () => {
-  // Regression guard: the previous form declared an isEmail rule that was never
-  // implemented, so a malformed address went straight to Firebase.
+  // Firebase would reject it too, but only after a round trip and with a raw error code.
   it('does not submit a malformed email address', async () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal('fetch', fetchSpy);
