@@ -46,15 +46,15 @@ export function OrderCard({ order, onMakeAgain }: OrderCardProps) {
                   ...line.drink.layers.map((topping) => TOPPING_OPTIONS[topping].label),
                 ].join(' · ')}
               </p>
+              <Button
+                variant="ghost"
+                className="mt-2 px-3 py-1.5 text-[0.625rem]"
+                onClick={() => onMakeAgain(line.drink)}
+                aria-label={`Make this again: ${describeDrink(line.drink).slice(0, 2).join(' ')}`}
+              >
+                Make again
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              className="shrink-0 px-3 py-2 text-[0.625rem]"
-              onClick={() => onMakeAgain(line.drink)}
-              aria-label={`Make this again: ${describeDrink(line.drink).slice(0, 2).join(' ')}`}
-            >
-              Make again
-            </Button>
           </li>
         ))}
       </ul>

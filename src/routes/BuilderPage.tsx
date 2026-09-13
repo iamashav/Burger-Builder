@@ -92,7 +92,7 @@ export function BuilderPage() {
   }, [sharedCode, dispatch, setSearchParams]);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start">
       <div className="flex flex-col items-center gap-5 lg:sticky lg:top-20">
         <h1 className="sr-only">Build your drink</h1>
 
@@ -113,18 +113,29 @@ export function BuilderPage() {
         <p className="text-center font-mono text-xs text-smoke">{describeDrink(drink).join(' · ')}</p>
 
         <div className="flex gap-2">
-          <Button variant="ghost" disabled={!canUndo} onClick={undo} aria-keyshortcuts="Control+Z">
+          <Button
+            variant="ghost"
+            className="px-3.5 sm:px-5"
+            disabled={!canUndo}
+            onClick={undo}
+            aria-keyshortcuts="Control+Z"
+          >
             Undo
           </Button>
           <Button
             variant="ghost"
+            className="px-3.5 sm:px-5"
             disabled={!canRedo}
             onClick={redo}
             aria-keyshortcuts="Control+Shift+Z"
           >
             Redo
           </Button>
-          <Button variant="danger" onClick={() => dispatch(drinkReset())}>
+          <Button
+            variant="danger"
+            className="px-3.5 whitespace-nowrap sm:px-5"
+            onClick={() => dispatch(drinkReset())}
+          >
             Start over
           </Button>
         </div>

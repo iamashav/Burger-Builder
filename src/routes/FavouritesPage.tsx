@@ -48,14 +48,14 @@ export function FavouritesPage() {
       )}
 
       {favourites && favourites.length > 0 && (
-        <ul className="grid list-none gap-4 p-0 md:grid-cols-2">
+        <ul className="grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2">
           {favourites.map((favourite) => (
             <li
               key={favourite.id}
               aria-label={favourite.name}
-              className="flex gap-4 bg-ash p-5 ring-1 ring-smoke/15"
+              className="flex gap-3 bg-ash p-4 ring-1 ring-smoke/15 sm:gap-4 sm:p-5"
             >
-              <DrinkCup drink={favourite.drink} className="h-28 w-auto shrink-0" />
+              <DrinkCup drink={favourite.drink} className="h-20 w-auto shrink-0 sm:h-28" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-3">
                   <h2 className="truncate font-display text-lg tracking-wide">{favourite.name}</h2>

@@ -154,7 +154,7 @@ export function CheckoutPage() {
   if (items.length === 0) return <Navigate to="/" replace />;
 
   return (
-    <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:items-start">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:items-start">
       <section className="bg-ash p-6 ring-1 ring-smoke/15" aria-labelledby="checkout-summary">
         <h2 id="checkout-summary" className="font-display text-2xl tracking-wide">
           Your order
