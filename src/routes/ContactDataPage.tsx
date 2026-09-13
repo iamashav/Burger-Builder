@@ -5,24 +5,24 @@ import { ErrorState } from '../components/ErrorState/ErrorState';
 import { Input } from '../components/Input/Input';
 import { Spinner } from '../components/Spinner/Spinner';
 import { EMPTY_ORDER_FORM, ORDER_FORM_FIELDS } from '../data/orderForm';
+import { formatPrice } from '../lib/format';
 import { checkValidity } from '../lib/validation';
 import { selectUserId } from '../store/authSlice';
-import {
-  burgerReset,
-  selectIngredients,
-  selectIsPurchasable,
-  selectTotalPrice,
-} from '../store/burgerSlice';
 import { usePlaceOrderMutation } from '../store/dbApi';
+import {
+  drinkHistoryCleared,
+  drinkReset,
+  selectDrink,
+  selectDrinkPrice,
+} from '../store/drinkSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import type { OrderFormValues } from '../types/burger';
+import type { OrderFormValues } from '../types/order';
 
 export function ContactDataPage() {
   const dispatch = useAppDispatch();
 
-  const ingredients = useAppSelector(selectIngredients);
-  const price = useAppSelector(selectTotalPrice);
-  const purchasable = useAppSelector(selectIsPurchasable);
+  const drink = useAppSelector(selectDrink);
+  const price = useAppSelector(selectDrinkPrice);
   const userId = useAppSelector(selectUserId);
 
   const [values, setValues] = useState<OrderFormValues>(EMPTY_ORDER_FORM);
@@ -40,22 +40,21 @@ export function ContactDataPage() {
     setTouched(true);
     if (!formValid || !userId) return;
 
-    const result = await placeOrder({ ingredients, price, orderData: values, userId });
+    const result = await placeOrder({ drink, price, orderData: values, userId });
     if (!('data' in result) || !result.data) return;
 
     setOrderPlaced(true);
-    dispatch(burgerReset());
+    dispatch(drinkReset());
+    // A fresh drink after ordering should not undo back into the one just bought.
+    dispatch(drinkHistoryCleared());
   };
 
-  // Both redirects are declarative because clearing the burger on success also makes it
-  // unpurchasable: an imperative navigate() here loses the race with the guard below.
   if (orderPlaced) return <Navigate to="/orders" replace />;
-  if (!purchasable) return <Navigate to="/" replace />;
 
   return (
     <div className="mx-auto max-w-md bg-ash p-6 ring-1 ring-smoke/15 sm:p-8">
       <h1 className="font-display text-2xl tracking-wide">Where is it going?</h1>
-      <p className="section-label mt-1 mb-6">Total ${price.toFixed(2)}</p>
+      <p className="section-label mt-1 mb-6">Total {formatPrice(price)}</p>
 
       {isError && (
         <div className="mb-5">

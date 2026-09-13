@@ -1,5 +1,5 @@
 import type { ValidationRules } from '../lib/validation';
-import type { OrderFormValues } from '../types/burger';
+import type { OrderFormValues } from '../types/order';
 
 export interface FieldConfig {
   name: keyof OrderFormValues;

@@ -24,7 +24,7 @@ export function OrdersPage() {
 
       {orders && orders.length === 0 && (
         <p className="bg-ash p-6 text-center text-smoke ring-1 ring-smoke/15">
-          No orders yet. Build a burger and it will show up here.
+          No orders yet. Build a drink and it will show up here.
         </p>
       )}
 

@@ -1,5 +1,6 @@
 import {
   FULL_SUGAR_KCAL,
+  ICE_LABELS,
   MILK_OPTIONS,
   SIZE_OPTIONS,
   TEA_OPTIONS,
@@ -19,6 +20,16 @@ const EXCLUDED_BY: Record<DietaryFilter, (item: MenuItem) => boolean> = {
   'dairy-free': (item) => item.allergens.includes('dairy'),
   'caffeine-free': (item) => item.caffeine,
 };
+
+export function describeDrink(drink: Drink): string[] {
+  return [
+    SIZE_OPTIONS[drink.size].label,
+    TEA_OPTIONS[drink.tea].label,
+    MILK_OPTIONS[drink.milk].label,
+    `${drink.sweetness}% sugar`,
+    ICE_LABELS[drink.ice],
+  ];
+}
 
 export function componentsOf(drink: Drink): MenuItem[] {
   return [

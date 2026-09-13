@@ -1,7 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { authApi } from './authApi';
 import { authReducer, readStoredSession } from './authSlice';
-import { burgerReducer } from './burgerSlice';
 import { dbApi } from './dbApi';
 import { drinkReducer } from './drinkSlice';
 import { filtersReducer } from './filtersSlice';
@@ -11,7 +10,6 @@ export function createStore(preloadedAuth = readStoredSession()) {
   return configureStore({
     reducer: {
       auth: authReducer,
-      burger: burgerReducer,
       drink: drinkReducer,
       filters: filtersReducer,
       [dbApi.reducerPath]: dbApi.reducer,

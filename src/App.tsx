@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout/Layout';
 import { Spinner } from './components/Spinner/Spinner';
-import { BurgerBuilderPage } from './routes/BurgerBuilderPage';
+import { BuilderPage } from './routes/BuilderPage';
 import { RequireAuth } from './routes/RequireAuth';
 
 // The builder is the landing route so it stays in the main bundle; everything behind a
@@ -33,7 +33,7 @@ function App() {
           </Suspense>
         }
       >
-        <Route index element={<BurgerBuilderPage />} />
+        <Route index element={<BuilderPage />} />
         <Route path="auth" element={<AuthPage />} />
 
         <Route element={<RequireAuth />}>
