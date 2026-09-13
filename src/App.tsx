@@ -13,9 +13,6 @@ const AuthPage = lazy(() =>
 const CheckoutPage = lazy(() =>
   import('./routes/CheckoutPage').then((module) => ({ default: module.CheckoutPage })),
 );
-const ContactDataPage = lazy(() =>
-  import('./routes/ContactDataPage').then((module) => ({ default: module.ContactDataPage })),
-);
 const OrdersPage = lazy(() =>
   import('./routes/OrdersPage').then((module) => ({ default: module.OrdersPage })),
 );
@@ -38,7 +35,6 @@ function App() {
 
         <Route element={<RequireAuth />}>
           <Route path="checkout" element={<CheckoutPage />} />
-          <Route path="checkout/contact-data" element={<ContactDataPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="logout" element={<LogoutPage />} />
         </Route>

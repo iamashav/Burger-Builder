@@ -1,10 +1,18 @@
-import { createListenerMiddleware } from '@reduxjs/toolkit';
+import { createListenerMiddleware, isAnyOf } from '@reduxjs/toolkit';
 import {
   SESSION_STORAGE_KEY,
   credentialsReceived,
   loggedOut,
   type Credentials,
 } from './authSlice';
+import {
+  CART_STORAGE_KEY,
+  cartCleared,
+  drinkAddedToCart,
+  itemRemoved,
+  quantityChanged,
+  type CartState,
+} from './cartSlice';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -40,6 +48,18 @@ listenerMiddleware.startListening({
       localStorage.removeItem(SESSION_STORAGE_KEY);
     } catch {
       // Nothing to clean up if storage is unavailable.
+    }
+  },
+});
+
+listenerMiddleware.startListening({
+  matcher: isAnyOf(drinkAddedToCart, quantityChanged, itemRemoved, cartCleared),
+  effect: (_action, listenerApi) => {
+    const { items } = (listenerApi.getState() as { cart: CartState }).cart;
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // Without storage the cart still works; it just does not survive a reload.
     }
   },
 });

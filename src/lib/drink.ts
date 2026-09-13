@@ -1,6 +1,7 @@
 import {
   FULL_SUGAR_KCAL,
   ICE_LABELS,
+  MAX_LAYERS,
   MILK_OPTIONS,
   SIZE_OPTIONS,
   TEA_OPTIONS,
@@ -9,11 +10,67 @@ import {
 import {
   ALLERGENS,
   DIETARY_FILTERS,
+  ICE_LEVELS,
+  MILKS,
+  SIZES,
+  SWEETNESS_LEVELS,
+  TEAS,
+  TOPPINGS,
   type DietaryFilter,
   type Drink,
   type MenuItem,
   type Nutrition,
 } from '../types/drink';
+
+function isOneOf<T>(options: readonly T[], value: unknown): value is T {
+  return options.includes(value as T);
+}
+
+/**
+ * Drinks come back from localStorage and the database, neither of which the type system
+ * can vouch for. Anything that is not a drink this menu can make is rejected outright.
+ */
+export function parseDrink(value: unknown): Drink | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const candidate = value as Record<string, unknown>;
+  // The Realtime Database does not store empty arrays, so a drink with no toppings
+  // comes back with no `layers` key at all.
+  const layers = candidate.layers ?? [];
+
+  if (
+    !isOneOf(SIZES, candidate.size) ||
+    !isOneOf(TEAS, candidate.tea) ||
+    !isOneOf(MILKS, candidate.milk) ||
+    !isOneOf(SWEETNESS_LEVELS, candidate.sweetness) ||
+    !isOneOf(ICE_LEVELS, candidate.ice) ||
+    !Array.isArray(layers) ||
+    layers.length > MAX_LAYERS ||
+    !layers.every((layer) => isOneOf(TOPPINGS, layer))
+  ) {
+    return null;
+  }
+
+  return {
+    size: candidate.size,
+    tea: candidate.tea,
+    milk: candidate.milk,
+    sweetness: candidate.sweetness,
+    ice: candidate.ice,
+    layers: [...layers],
+  };
+}
+
+export function sameDrink(a: Drink, b: Drink): boolean {
+  return (
+    a.size === b.size &&
+    a.tea === b.tea &&
+    a.milk === b.milk &&
+    a.sweetness === b.sweetness &&
+    a.ice === b.ice &&
+    a.layers.length === b.layers.length &&
+    a.layers.every((layer, index) => layer === b.layers[index])
+  );
+}
 
 const EXCLUDED_BY: Record<DietaryFilter, (item: MenuItem) => boolean> = {
   vegan: (item) => item.animal,

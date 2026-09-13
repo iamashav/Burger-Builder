@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button/Button';
 import { DietaryFilters } from '../components/DietaryFilters/DietaryFilters';
 import { DrinkCup } from '../components/DrinkCup/DrinkCup';
@@ -9,7 +8,7 @@ import { OptionPanel } from '../components/OptionPanel/OptionPanel';
 import { describeDrink } from '../lib/drink';
 import { formatPrice } from '../lib/format';
 import { useUndoShortcuts } from '../lib/useUndoShortcuts';
-import { redirectPathSet, selectIsAuthenticated } from '../store/authSlice';
+import { drinkAddedToCart } from '../store/cartSlice';
 import {
   drinkRedone,
   drinkReset,
@@ -33,7 +32,6 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 export function BuilderPage() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   const drink = useAppSelector(selectDrink);
   const price = useAppSelector(selectDrinkPrice);
@@ -41,20 +39,10 @@ export function BuilderPage() {
   const filters = useAppSelector(selectActiveFilters);
   const canUndo = useAppSelector(selectCanUndo);
   const canRedo = useAppSelector(selectCanRedo);
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   const undo = useCallback(() => dispatch(drinkUndone()), [dispatch]);
   const redo = useCallback(() => dispatch(drinkRedone()), [dispatch]);
   useUndoShortcuts(undo, redo);
-
-  const handleOrder = () => {
-    if (isAuthenticated) {
-      navigate('/checkout');
-      return;
-    }
-    dispatch(redirectPathSet('/checkout'));
-    navigate('/auth');
-  };
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-start">
@@ -115,8 +103,8 @@ export function BuilderPage() {
               {formatPrice(price)}
             </span>
           </p>
-          <Button className="py-3.5" onClick={handleOrder}>
-            {isAuthenticated ? 'Order this drink' : 'Sign in to order'}
+          <Button className="py-3.5" onClick={() => dispatch(drinkAddedToCart(drink))}>
+            Add to order
           </Button>
         </div>
       </div>
