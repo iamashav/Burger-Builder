@@ -33,7 +33,7 @@ export function OrdersPage() {
       )}
 
       {orders && orders.length > 0 && (
-        <ul className="grid list-none gap-4 p-0 md:grid-cols-2">
+        <ul className="grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2">
           {orders.map((order) => (
             <OrderCard
               key={order.id}

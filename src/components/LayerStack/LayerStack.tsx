@@ -71,7 +71,11 @@ export function LayerStack({ layers, onMove, onRemove }: LayerStackProps) {
         Layers, top to bottom
       </h2>
       <p id={`${id}-hint`} className="mb-3 font-mono text-[0.6875rem] text-smoke/80">
-        Drag to reorder, or focus a layer and press Alt + ↑ / ↓.
+        {/* Native drag and drop never fires for touch input, so touch users are pointed at the buttons. */}
+        <span className="pointer-coarse:hidden">
+          Drag to reorder, or focus a layer and press Alt + ↑ / ↓.
+        </span>
+        <span className="hidden pointer-coarse:inline">Use the ↑ and ↓ buttons to reorder.</span>
       </p>
 
       {layers.length === 0 ? (
@@ -104,11 +108,11 @@ export function LayerStack({ layers, onMove, onRemove }: LayerStackProps) {
                 onDrop={(event) => handleDrop(event, index)}
                 onDragEnd={() => setDragOver(null)}
                 className={cn(
-                  'flex cursor-grab items-center gap-3 bg-ink/40 py-2 pr-2 pl-3 ring-1 ring-smoke/20 active:cursor-grabbing',
+                  'flex cursor-grab items-center gap-2 bg-ink/40 py-2 pr-2 pl-3 ring-1 ring-smoke/20 active:cursor-grabbing sm:gap-3',
                   dragOver === index && 'ring-2 ring-flood',
                 )}
               >
-                <span aria-hidden="true" className="font-mono text-smoke">
+                <span aria-hidden="true" className="font-mono text-smoke pointer-coarse:hidden">
                   ⋮⋮
                 </span>
                 <span
