@@ -1,0 +1,45 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "orders": {
+      ".indexOn": ["userId"],
+      ".read": "auth != null && query.orderByChild === 'userId' && query.equalTo === auth.uid",
+
+      "$orderId": {
+        ".read": "auth != null && data.child('userId').val() === auth.uid",
+        ".write": "auth != null && !data.exists() && newData.child('userId').val() === auth.uid",
+        ".validate": "newData.hasChildren(['lines', 'total', 'fulfilment', 'contact', 'userId', 'createdAt'])",
+
+        "userId": { ".validate": "newData.isString()" },
+        "total": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "createdAt": { ".validate": "newData.val() === now" },
+        "lines": { ".validate": "newData.hasChildren()" },
+        "fulfilment": {
+          ".validate": "newData.child('method').val() === 'pickup' || newData.child('method').val() === 'delivery'"
+        },
+        "contact": { ".validate": "newData.hasChildren(['name', 'email', 'phone'])" },
+        "$other": { ".validate": false }
+      }
+    },
+
+    "favourites": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+
+        "$favouriteId": {
+          ".validate": "newData.hasChildren(['name', 'drink', 'createdAt'])",
+
+          "name": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60"
+          },
+          "drink": { ".validate": "newData.hasChildren(['size', 'tea', 'milk', 'sweetness', 'ice'])" },
+          "createdAt": { ".validate": "newData.val() === now" },
+          "$other": { ".validate": false }
+        }
+      }
+    }
+  }
+}

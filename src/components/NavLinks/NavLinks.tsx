@@ -19,6 +19,7 @@ const PUBLIC_ITEMS: NavItem[] = [
 
 const PRIVATE_ITEMS: NavItem[] = [
   { to: '/', label: 'Build a drink' },
+  { to: '/favourites', label: 'Favourites' },
   { to: '/orders', label: 'Orders' },
   { to: '/logout', label: 'Log out' },
 ];

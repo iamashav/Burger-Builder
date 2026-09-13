@@ -16,6 +16,9 @@ const CheckoutPage = lazy(() =>
 const OrdersPage = lazy(() =>
   import('./routes/OrdersPage').then((module) => ({ default: module.OrdersPage })),
 );
+const FavouritesPage = lazy(() =>
+  import('./routes/FavouritesPage').then((module) => ({ default: module.FavouritesPage })),
+);
 const LogoutPage = lazy(() =>
   import('./routes/LogoutPage').then((module) => ({ default: module.LogoutPage })),
 );
@@ -35,6 +38,7 @@ function App() {
 
         <Route element={<RequireAuth />}>
           <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="favourites" element={<FavouritesPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="logout" element={<LogoutPage />} />
         </Route>
