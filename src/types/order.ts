@@ -1,8 +1,4 @@
-export const INGREDIENTS = ['salad', 'bacon', 'cheese', 'meat'] as const;
-
-export type Ingredient = (typeof INGREDIENTS)[number];
-
-export type IngredientCounts = Record<Ingredient, number>;
+import type { Drink } from './drink';
 
 export interface OrderFormValues {
   name: string;
@@ -14,7 +10,7 @@ export interface OrderFormValues {
 }
 
 export interface OrderPayload {
-  ingredients: IngredientCounts;
+  drink: Drink;
   price: number;
   orderData: OrderFormValues;
   userId: string;

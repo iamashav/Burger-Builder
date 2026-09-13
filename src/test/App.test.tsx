@@ -1,44 +1,28 @@
 import { screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import App from '../App';
 import { renderWithProviders, SIGNED_IN } from './renderWithProviders';
 
-function stubIngredientsFetch() {
-  const fetchSpy = vi.fn(async () =>
-    new Response(JSON.stringify({ salad: 0, bacon: 0, cheese: 0, meat: 0 }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    }),
-  );
-  vi.stubGlobal('fetch', fetchSpy);
-  return fetchSpy;
-}
-
 describe('<App />', () => {
-  beforeEach(stubIngredientsFetch);
-  afterEach(() => vi.unstubAllGlobals());
-
-  it('renders the builder on the index route', async () => {
+  it('renders the builder on the index route', () => {
     renderWithProviders(<App />);
 
-    expect(await screen.findByRole('heading', { name: 'Build your burger' })).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: 'Add one meat' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Build your drink' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Assam black/ })).toBeInTheDocument();
   });
 
-  it('shows signed-out navigation to visitors', async () => {
+  it('shows signed-out navigation to visitors', () => {
     renderWithProviders(<App />);
 
-    await screen.findByRole('heading', { name: 'Build your burger' });
     const nav = screen.getAllByRole('navigation', { name: 'Main' })[0];
 
     expect(nav).toHaveTextContent('Sign in');
     expect(nav).not.toHaveTextContent('Orders');
   });
 
-  it('shows orders and logout once signed in', async () => {
+  it('shows orders and logout once signed in', () => {
     renderWithProviders(<App />, { auth: SIGNED_IN });
 
-    await screen.findByRole('heading', { name: 'Build your burger' });
     const nav = screen.getAllByRole('navigation', { name: 'Main' })[0];
 
     expect(nav).toHaveTextContent('Orders');

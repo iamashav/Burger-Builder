@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { EMPTY_INGREDIENTS } from '../data/ingredients';
-import type { IngredientCounts, Order, OrderPayload } from '../types/burger';
+import type { Order, OrderPayload } from '../types/order';
 import type { RootState } from './index';
 
 const rawBaseQuery = fetchBaseQuery({ baseUrl: import.meta.env.VITE_FIREBASE_DB_URL });
@@ -32,16 +31,6 @@ export const dbApi = createApi({
   baseQuery: baseQueryWithAuth,
   tagTypes: ['Orders'],
   endpoints: (builder) => ({
-    getIngredients: builder.query<IngredientCounts, void>({
-      query: () => 'ingredients.json',
-      // The stored record has drifted from the app's ingredient list before; merging over
-      // a known-complete default stops one missing key from crashing the builder.
-      transformResponse: (response: Partial<IngredientCounts> | null) => ({
-        ...EMPTY_INGREDIENTS,
-        ...(response ?? {}),
-      }),
-    }),
-
     getOrders: builder.query<Order[], string>({
       query: (userId) => ({
         url: 'orders.json',
@@ -59,4 +48,4 @@ export const dbApi = createApi({
   }),
 });
 
-export const { useGetIngredientsQuery, useGetOrdersQuery, usePlaceOrderMutation } = dbApi;
+export const { useGetOrdersQuery, usePlaceOrderMutation } = dbApi;

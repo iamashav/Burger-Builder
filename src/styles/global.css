@@ -1,25 +1,12 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-flood: #00e87a;
-  --color-ink: #070f0a;
-  --color-bone: #edf9f5;
-  --color-ash: #1a241e;
-  --color-smoke: #8a9a91;
-  --color-danger: #ff6b5b;
-
-  /* The burger keeps food colours: brand green on every layer would be illegible. */
-  --color-bun: #e27b36;
-  --color-bun-dark: #bc581e;
-  --color-bun-shade: #c15711;
-  --color-meat: #7f3608;
-  --color-meat-dark: #702e05;
-  --color-cheese: #f4d004;
-  --color-cheese-dark: #d6bb22;
-  --color-salad: #228c1d;
-  --color-salad-light: #91ce50;
-  --color-bacon: #bf3813;
-  --color-bacon-light: #c45e38;
+  --color-flood: #c9a7f5;
+  --color-ink: #14100d;
+  --color-bone: #f5ece0;
+  --color-ash: #221b16;
+  --color-smoke: #a3968a;
+  --color-danger: #ff7a66;
 
   --font-display: 'Anton', 'Arial Narrow', sans-serif;
   --font-body: 'Newsreader', Georgia, serif;
@@ -60,115 +47,6 @@ body {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-smoke);
-}
-
-/* The burger is drawn with gradients and pseudo-elements, which have no Tailwind
-   utility equivalent, so the layer geometry stays as authored CSS. */
-@utility burger-bread-top {
-  position: relative;
-  height: 20%;
-  width: 80%;
-  margin: 2% auto;
-  background: linear-gradient(var(--color-bun-dark), var(--color-bun));
-  border-radius: 50% 50% 0 0;
-  box-shadow: inset -15px 0 var(--color-bun-shade);
-}
-
-@utility burger-bread-bottom {
-  height: 13%;
-  width: 80%;
-  margin: 2% auto;
-  background: linear-gradient(#f08e4a, var(--color-bun));
-  border-radius: 0 0 30px 30px;
-  box-shadow: inset -15px 0 var(--color-bun-shade);
-}
-
-@utility burger-meat {
-  height: 8%;
-  width: 80%;
-  margin: 2% auto;
-  background: linear-gradient(var(--color-meat), var(--color-meat-dark));
-  border-radius: 15px;
-}
-
-@utility burger-cheese {
-  height: 4.5%;
-  width: 90%;
-  margin: 2% auto;
-  background: linear-gradient(var(--color-cheese), var(--color-cheese-dark));
-  border-radius: 20px;
-}
-
-@utility burger-salad {
-  height: 7%;
-  width: 85%;
-  margin: 2% auto;
-  background: linear-gradient(var(--color-salad), var(--color-salad-light));
-  border-radius: 20px;
-}
-
-@utility burger-bacon {
-  height: 3%;
-  width: 80%;
-  margin: 2% auto;
-  background: linear-gradient(var(--color-bacon), var(--color-bacon-light));
-}
-
-@utility burger-seed {
-  position: absolute;
-  width: 10%;
-  height: 15%;
-  background-color: #fff;
-  border-radius: 40%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: #fff;
-    border-radius: 40%;
-  }
-}
-
-@utility burger-seed-a {
-  left: 30%;
-  top: 50%;
-  transform: rotate(-20deg);
-  box-shadow: inset -2px -3px #c9c9c9;
-
-  &::after {
-    left: -170%;
-    top: -260%;
-    transform: rotate(60deg);
-    box-shadow: inset -1px 2px #c9c9c9;
-  }
-
-  &::before {
-    left: 180%;
-    top: 100%;
-    transform: rotate(60deg);
-    box-shadow: inset -1px -3px #c9c9c9;
-  }
-}
-
-@utility burger-seed-b {
-  left: 64%;
-  top: 50%;
-  transform: rotate(10deg);
-  box-shadow: inset -3px 0 #c9c9c9;
-
-  &::before {
-    left: 150%;
-    top: -130%;
-    transform: rotate(90deg);
-    box-shadow: inset 1px 3px #c9c9c9;
-  }
-
-  &::after {
-    content: none;
-  }
 }
 
 @keyframes fade-in {

@@ -13,12 +13,12 @@ interface NavItem {
 }
 
 const PUBLIC_ITEMS: NavItem[] = [
-  { to: '/', label: 'Burger builder' },
+  { to: '/', label: 'Build a drink' },
   { to: '/auth', label: 'Sign in' },
 ];
 
 const PRIVATE_ITEMS: NavItem[] = [
-  { to: '/', label: 'Burger builder' },
+  { to: '/', label: 'Build a drink' },
   { to: '/orders', label: 'Orders' },
   { to: '/logout', label: 'Log out' },
 ];
