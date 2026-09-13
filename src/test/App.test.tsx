@@ -1,4 +1,5 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import App from '../App';
 import { renderWithProviders, SIGNED_IN } from './renderWithProviders';
@@ -28,6 +29,21 @@ describe('<App />', () => {
     expect(nav).toHaveTextContent('Orders');
     expect(nav).toHaveTextContent('Log out');
     expect(nav).not.toHaveTextContent('Sign in');
+  });
+
+  it('adds the current drink to the order and sends a visitor to sign in at checkout', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Add to order' }));
+    await user.click(screen.getByRole('button', { name: 'Add to order' }));
+
+    const cart = screen.getByRole('dialog', { name: 'Your order' });
+    expect(within(cart).getByText('2')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open order, 2 drinks' })).toBeInTheDocument();
+
+    await user.click(within(cart).getByRole('button', { name: 'Sign in to check out' }));
+    expect(await screen.findByRole('heading', { name: 'Create an account' })).toBeInTheDocument();
   });
 
   it('keeps a signed-out visitor away from the orders route', async () => {

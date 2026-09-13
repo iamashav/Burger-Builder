@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { cn } from '../../lib/cn';
 
-export interface NavigationItemsProps {
+export interface NavLinksProps {
   isAuthenticated: boolean;
   orientation?: 'horizontal' | 'vertical';
   onNavigate?: () => void;
@@ -23,11 +23,11 @@ const PRIVATE_ITEMS: NavItem[] = [
   { to: '/logout', label: 'Log out' },
 ];
 
-export function NavigationItems({
+export function NavLinks({
   isAuthenticated,
   orientation = 'horizontal',
   onNavigate,
-}: NavigationItemsProps) {
+}: NavLinksProps) {
   const items = isAuthenticated ? PRIVATE_ITEMS : PUBLIC_ITEMS;
 
   return (
