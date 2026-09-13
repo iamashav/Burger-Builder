@@ -11,6 +11,9 @@ See `README.md` for architecture, data model and deployment.
   website restrictions in Google Cloud first (see README → API key restrictions).
 - **The Firebase web config in `.env` is public by design.** Never commit service account or Admin
   SDK credentials.
+- **Deploys stay manual by choice.** Don't add a deploy workflow or a Firebase service-account
+  secret to GitHub. `npm run deploy` runs locally, so no admin credential lives outside the
+  developer's machine. CI only runs lint, tests and a build.
 - **Database rules live in `database.rules.json`** and deploy with `npm run deploy`
   (hosting + database). Any new database path needs a rule, because the root denies everything.
 - **Data read back is untrusted.** Drinks from storage, share links or the database must go through
