@@ -4,8 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_DRINK, MAX_LAYERS } from '../data/menu';
 import { priceOf } from '../lib/drink';
 import { formatPrice } from '../lib/format';
+import { decodeDrink } from '../lib/shareCode';
 import { createStore } from '../store';
-import { drinkLoaded, selectDrink } from '../store/drinkSlice';
+import { drinkLoaded, selectCanUndo, selectDrink } from '../store/drinkSlice';
 import { BuilderPage } from '../routes/BuilderPage';
 import type { Drink } from '../types/drink';
 import { renderWithProviders } from './renderWithProviders';
@@ -96,5 +97,47 @@ describe('<BuilderPage />', () => {
     expect(
       screen.getByText(formatPrice(priceOf({ ...DEFAULT_DRINK, size: 'large', layers: [] }))),
     ).toBeInTheDocument();
+  });
+});
+
+describe('<BuilderPage /> share links', () => {
+  it('loads a drink from the link as an undoable step', async () => {
+    const user = userEvent.setup();
+    const store = createStore();
+    renderWithProviders(<BuilderPage />, { store, route: '/?d=L.mat.oat.25.no.pop-fom' });
+
+    expect(selectDrink(store.getState())).toEqual({
+      size: 'large',
+      tea: 'matcha',
+      milk: 'oat',
+      sweetness: 25,
+      ice: 'none',
+      layers: ['popping', 'foam'],
+    });
+    expect(screen.getByRole('status')).toHaveTextContent('Loaded a shared drink');
+
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(selectDrink(store.getState())).toEqual(DEFAULT_DRINK);
+    expect(selectCanUndo(store.getState())).toBe(false);
+  });
+
+  it('leaves the drink alone when the link is not a real drink', () => {
+    const store = createStore();
+    renderWithProviders(<BuilderPage />, { store, route: '/?d=R.blk.whl.50.reg.cheese' });
+
+    expect(selectDrink(store.getState())).toEqual(DEFAULT_DRINK);
+    expect(screen.getByRole('status')).toHaveTextContent('does not match anything on the menu');
+  });
+
+  it('copies a link that rebuilds the current drink', async () => {
+    const user = userEvent.setup();
+    const drink: Drink = { ...DEFAULT_DRINK, tea: 'taro', layers: ['redbean'] };
+    renderBuilder(drink);
+
+    await user.click(screen.getByRole('button', { name: 'Share this drink' }));
+
+    const copied = await navigator.clipboard.readText();
+    expect(decodeDrink(new URL(copied).searchParams.get('d') ?? '')).toEqual(drink);
+    expect(screen.getByRole('button', { name: 'Link copied' })).toBeInTheDocument();
   });
 });

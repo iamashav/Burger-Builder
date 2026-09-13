@@ -1,7 +1,11 @@
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_DRINK } from '../data/menu';
+import App from '../App';
 import { OrdersPage } from '../routes/OrdersPage';
+import { createStore } from '../store';
+import { selectDrink } from '../store/drinkSlice';
 import { renderWithProviders, SIGNED_IN } from './renderWithProviders';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -45,5 +49,25 @@ describe('<OrdersPage />', () => {
     stubOrders(null);
     renderWithProviders(<OrdersPage />, { auth: SIGNED_IN, route: '/orders' });
     expect(await screen.findByText(/No orders yet/)).toBeInTheDocument();
+  });
+});
+
+describe('<OrdersPage /> make again', () => {
+  it('loads an ordered drink back into the builder', async () => {
+    const shared = { ...DEFAULT_DRINK, tea: 'oolong', layers: ['grass'] };
+    stubOrders({
+      only: {
+        ...order(1_000, { method: 'pickup', time: 'asap' }),
+        lines: [{ drink: shared, quantity: 1, unitPrice: 6 }],
+      },
+    });
+    const user = userEvent.setup();
+    const store = createStore(SIGNED_IN);
+    renderWithProviders(<App />, { store, route: '/orders' });
+
+    await user.click(await screen.findByRole('button', { name: /Make this again/ }));
+
+    expect(await screen.findByRole('heading', { name: 'Build your drink' })).toBeInTheDocument();
+    expect(selectDrink(store.getState())).toEqual(shared);
   });
 });
