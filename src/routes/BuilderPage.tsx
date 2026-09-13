@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/Button/Button';
 import { DietaryFilters } from '../components/DietaryFilters/DietaryFilters';
 import { DrinkCup } from '../components/DrinkCup/DrinkCup';
 import { LayerStack } from '../components/LayerStack/LayerStack';
 import { NutritionPanel } from '../components/NutritionPanel/NutritionPanel';
 import { OptionPanel } from '../components/OptionPanel/OptionPanel';
+import { SaveFavouriteDialog } from '../components/SaveFavouriteDialog/SaveFavouriteDialog';
 import { ShareButton } from '../components/ShareButton/ShareButton';
 import { cn } from '../lib/cn';
 import { describeDrink } from '../lib/drink';
 import { formatPrice } from '../lib/format';
 import { SHARE_PARAM, decodeDrink, shareUrl } from '../lib/shareCode';
 import { useUndoShortcuts } from '../lib/useUndoShortcuts';
+import { redirectPathSet, selectUserId } from '../store/authSlice';
 import { drinkAddedToCart } from '../store/cartSlice';
 import {
   drinkLoaded,
@@ -35,6 +37,11 @@ import {
 import { filterToggled, selectActiveFilters } from '../store/filtersSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
+interface Notice {
+  tone: 'info' | 'error';
+  text: string;
+}
+
 export function BuilderPage() {
   const dispatch = useAppDispatch();
 
@@ -44,6 +51,8 @@ export function BuilderPage() {
   const filters = useAppSelector(selectActiveFilters);
   const canUndo = useAppSelector(selectCanUndo);
   const canRedo = useAppSelector(selectCanRedo);
+  const userId = useAppSelector(selectUserId);
+  const navigate = useNavigate();
 
   const undo = useCallback(() => dispatch(drinkUndone()), [dispatch]);
   const redo = useCallback(() => dispatch(drinkRedone()), [dispatch]);
@@ -51,7 +60,8 @@ export function BuilderPage() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const sharedCode = searchParams.get(SHARE_PARAM);
-  const [shareNotice, setShareNotice] = useState<'loaded' | 'invalid' | null>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const [saving, setSaving] = useState(false);
   // StrictMode runs this effect twice before the param is gone from the URL; without the
   // guard a shared drink would be loaded twice and cost an extra undo step.
   const handledCode = useRef<string | null>(null);
@@ -62,7 +72,14 @@ export function BuilderPage() {
 
     const shared = decodeDrink(sharedCode);
     if (shared) dispatch(drinkLoaded(shared));
-    setShareNotice(shared ? 'loaded' : 'invalid');
+    setNotice(
+      shared
+        ? { tone: 'info', text: 'Loaded a shared drink. Undo takes you back to what you had.' }
+        : {
+            tone: 'error',
+            text: 'That share link does not match anything on the menu, so nothing changed.',
+          },
+    );
 
     // Dropped from the URL so a reload does not overwrite edits made since.
     setSearchParams(
@@ -79,17 +96,15 @@ export function BuilderPage() {
       <div className="flex flex-col items-center gap-5 lg:sticky lg:top-20">
         <h1 className="sr-only">Build your drink</h1>
 
-        {shareNotice && (
+        {notice && (
           <p
             role="status"
             className={cn(
               'w-full max-w-md border px-3 py-2 text-center text-sm',
-              shareNotice === 'loaded' ? 'border-flood/40 text-flood' : 'border-danger/40 text-danger',
+              notice.tone === 'info' ? 'border-flood/40 text-flood' : 'border-danger/40 text-danger',
             )}
           >
-            {shareNotice === 'loaded'
-              ? 'Loaded a shared drink. Undo takes you back to what you had.'
-              : 'That share link does not match anything on the menu, so nothing changed.'}
+            {notice.text}
           </p>
         )}
 
@@ -114,7 +129,37 @@ export function BuilderPage() {
           </Button>
         </div>
 
-        <ShareButton url={shareUrl(drink)} label="Share this drink" />
+        <div className="flex flex-wrap items-start justify-center gap-2">
+          <ShareButton url={shareUrl(drink)} label="Share this drink" />
+          {userId ? (
+            <Button variant="ghost" onClick={() => setSaving(true)}>
+              Save to favourites
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                dispatch(redirectPathSet('/'));
+                navigate('/auth');
+              }}
+            >
+              Sign in to save
+            </Button>
+          )}
+        </div>
+
+        {userId && (
+          <SaveFavouriteDialog
+            open={saving}
+            drink={drink}
+            userId={userId}
+            onClose={() => setSaving(false)}
+            onSaved={(name) => {
+              setSaving(false);
+              setNotice({ tone: 'info', text: `Saved “${name}” to your favourites.` });
+            }}
+          />
+        )}
       </div>
 
       <div className="flex flex-col gap-5">

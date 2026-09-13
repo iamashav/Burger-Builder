@@ -1,8 +1,24 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { parseDrink } from '../lib/drink';
-import type { Order, OrderLine, OrderPayload } from '../types/order';
+import type { Drink } from '../types/drink';
+import type { Favourite, FavouritePayload } from '../types/favourite';
+import { SERVER_TIMESTAMP, type Order, type OrderLine, type OrderPayload } from '../types/order';
 import type { RootState } from './index';
+
+interface SaveFavouriteArgs {
+  userId: string;
+  name: string;
+  drink: Drink;
+}
+
+function parseFavourite(id: string, raw: unknown): Favourite | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const record = raw as Record<string, unknown>;
+  const drink = parseDrink(record.drink);
+  if (!drink || typeof record.name !== 'string') return null;
+  return { id, name: record.name, drink, createdAt: Number(record.createdAt) || 0 };
+}
 
 /** Records that predate the current order shape, or were hand-edited, are skipped. */
 function parseOrder(id: string, raw: unknown): Order | null {
@@ -53,7 +69,7 @@ const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQuery
 export const dbApi = createApi({
   reducerPath: 'dbApi',
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['Orders'],
+  tagTypes: ['Orders', 'Favourites'],
   endpoints: (builder) => ({
     getOrders: builder.query<Order[], string>({
       query: (userId) => ({
@@ -74,7 +90,42 @@ export const dbApi = createApi({
       query: (order) => ({ url: 'orders.json', method: 'POST', body: order }),
       invalidatesTags: ['Orders'],
     }),
+
+    getFavourites: builder.query<Favourite[], string>({
+      query: (userId) => `favourites/${encodeURIComponent(userId)}.json`,
+      transformResponse: (response: Record<string, unknown> | null) =>
+        Object.entries(response ?? {})
+          .flatMap(([id, raw]) => {
+            const favourite = parseFavourite(id, raw);
+            return favourite ? [favourite] : [];
+          })
+          .sort((a, b) => b.createdAt - a.createdAt),
+      providesTags: ['Favourites'],
+    }),
+
+    saveFavourite: builder.mutation<{ name: string }, SaveFavouriteArgs>({
+      query: ({ userId, name, drink }) => ({
+        url: `favourites/${encodeURIComponent(userId)}.json`,
+        method: 'POST',
+        body: { name, drink, createdAt: SERVER_TIMESTAMP } satisfies FavouritePayload,
+      }),
+      invalidatesTags: ['Favourites'],
+    }),
+
+    deleteFavourite: builder.mutation<null, { userId: string; id: string }>({
+      query: ({ userId, id }) => ({
+        url: `favourites/${encodeURIComponent(userId)}/${encodeURIComponent(id)}.json`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Favourites'],
+    }),
   }),
 });
 
-export const { useGetOrdersQuery, usePlaceOrderMutation } = dbApi;
+export const {
+  useGetOrdersQuery,
+  usePlaceOrderMutation,
+  useGetFavouritesQuery,
+  useSaveFavouriteMutation,
+  useDeleteFavouriteMutation,
+} = dbApi;
