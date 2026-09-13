@@ -142,7 +142,7 @@ so it only works from this app.
 | Restriction | Allowed |
 | --- | --- |
 | Websites | `https://pearl-and-leaf.web.app/*`, `https://pearl-and-leaf.firebaseapp.com/*`, `http://localhost:5173/*`, `http://localhost:4173/*` |
-| APIs | Identity Toolkit API, Token Service API |
+| APIs | Firebase's default set (Firebase APIs enabled on the project); the app itself uses only Identity Toolkit API and Token Service API |
 
 - **Ports are fixed.** `npm run dev` uses 5173 and `npm run preview` uses 4173, both with
   `strictPort` in `vite.config.ts`. If a port is taken, Vite exits instead of moving to another
@@ -152,8 +152,9 @@ so it only works from this app.
 - **Tests do not need the key.** Vitest stubs `fetch`, so the restrictions never affect
   `npm test` or CI.
 - **Only sign-in uses the key.** Realtime Database requests are authorised by the user's ID token
-  and `database.rules.json` instead. If the app starts calling another Google API with the key,
-  that API has to be added to the key's API list.
+  and `database.rules.json` instead. The broader API list is kept deliberately: the management APIs
+  in it also need an authorised Google account, and no Gemini API is enabled. Enabling Gemini or
+  moving to the Blaze plan is the point to narrow the list to the two APIs above.
 
 ## Deployment
 
