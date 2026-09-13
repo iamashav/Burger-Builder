@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { STORAGE_PREFIX } from '../data/brand';
 
 export interface AuthState {
   token: string | null;
@@ -13,7 +14,7 @@ export interface Credentials {
   expiresAt: number;
 }
 
-export const SESSION_STORAGE_KEY = 'burger-builder.session';
+export const SESSION_STORAGE_KEY = `${STORAGE_PREFIX}.session`;
 
 const emptyState: AuthState = {
   token: null,
