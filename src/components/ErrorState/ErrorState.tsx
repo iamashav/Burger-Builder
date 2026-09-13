@@ -8,7 +8,7 @@ export interface ErrorStateProps {
 
 export function ErrorState({
   title = 'That did not load',
-  message = 'The kitchen is unreachable right now. Check your connection and try again.',
+  message = 'We could not reach the shop right now. Check your connection and try again.',
   onRetry,
 }: ErrorStateProps) {
   return (

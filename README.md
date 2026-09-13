@@ -1,9 +1,28 @@
-# Burger Builder
+# Pearl & Leaf
 
-Build a burger ingredient by ingredient, watch the price update live, then sign in and order it.
-Orders are stored per account and listed back on an orders page.
+A bubble tea builder. Pick a cup size, tea, milk, sweetness and ice, then stack toppings and reorder
+the layers. The cup redraws live, and price, calories and allergens update as you go. Undo anything,
+share a drink as a link, save favourites to your account, and order several drinks for pickup or
+delivery.
 
-**Live:** https://my-react-burgerbuilder-app.web.app
+> Grew out of a 2021 React course exercise; redesigned as a different product and rebuilt from
+> scratch in 2026.
+
+## Features
+
+- **Layered drinks.** Toppings form an ordered stack (up to four scoops) drawn as an SVG cup.
+  Reorder by drag and drop, with the up/down buttons, or with Alt + ↑/↓ on a focused layer.
+- **Undo / redo** for every change, including reorders and loading a shared drink
+  (Ctrl+Z / Ctrl+Shift+Z).
+- **Menu data with dietary filters.** Each item carries price, calories, allergens and
+  animal/caffeine flags. Vegan, dairy-free and caffeine-free filters disable options that do not
+  fit and say why.
+- **Shareable links.** `/?d=L.mat.oat.25.no.pop-fom` rebuilds a drink. Codes are short and readable,
+  and validated against the menu.
+- **Favourites** saved per account, which you can load, share, add to an order or delete.
+- **Cart and checkout.** Order several drinks at once for pickup (with a time slot) or delivery.
+  The cart survives a reload.
+- **Order history** with "Make again" on every drink.
 
 ## Stack
 
@@ -19,7 +38,7 @@ Orders are stored per account and listed back on an orders page.
 | Lint | oxlint |
 | Tests | Vitest + Testing Library |
 | Backend | Firebase Realtime Database + Firebase Auth, over REST |
-| Hosting | Firebase Hosting, deployed from GitHub Actions |
+| Hosting | Firebase Hosting, deployed manually |
 
 ## Quickstart
 
@@ -38,7 +57,7 @@ npm run dev
 | `npm run lint` | oxlint |
 | `npm test` | Run the test suite once |
 | `npm run test:watch` | Run tests in watch mode |
-| `npm run deploy` | Build and deploy to Firebase Hosting |
+| `npm run deploy` | Build, then deploy hosting and database rules |
 
 ## Architecture
 
@@ -46,38 +65,58 @@ npm run dev
 src/
 ├── components/   presentational components, one PascalCase folder each
 ├── routes/       page components, lazy-loaded except the builder
-├── store/        Redux Toolkit slices and RTK Query APIs
-├── data/         typed constants — prices, labels, form field config
-├── lib/          cn() class helper, form validation
+├── store/        Redux Toolkit slices, the undo history reducer, RTK Query APIs
+├── data/         typed menu catalogue and brand constants
+├── lib/          pure domain logic (pricing, nutrition, share codes) and small hooks
 ├── types/        shared domain types
 └── test/         Vitest setup and specs
 ```
 
-State is split in two:
+| Slice | Holds |
+| --- | --- |
+| `drink` | The drink being built, wrapped in `undoable()` as `{ past, present, future }` |
+| `filters` | Active dietary filters |
+| `cart` | Order lines `{ id, drink, quantity }`, persisted to localStorage |
+| `auth` | The session; a listener middleware owns persistence and a single auto-logout timer |
+| `dbApi`, `authApi` | RTK Query: orders, favourites, sign-in; loading, error and cache invalidation |
 
-- **`burgerSlice`** holds only the ingredient counts. The total price is a derived selector
-  (`selectTotalPrice`) rather than stored state, so it can never disagree with what is on screen.
-- **`authSlice`** holds the session. A listener middleware owns persistence and a single
-  cancellable auto-logout timer.
+## Design decisions
 
-All network access goes through RTK Query (`dbApi`, `authApi`), which supplies the loading, error
-and cache-invalidation states the UI renders.
+- **Undo is a generic higher-order reducer** (`store/history.ts`), not something built into the
+  drink slice. It skips actions that change nothing, caps the history, and merges consecutive
+  actions that share a key, so dragging the sweetness slider undoes in one step.
+- **Price and nutrition are derived, never stored.** `lib/drink.ts` computes them from the drink
+  with pure functions, so they cannot drift from what is on screen. Prices are rounded to whole
+  cents to avoid float noise.
+- **Anything read back is untrusted.** Share codes, localStorage and database records all pass
+  through `parseDrink`, which accepts only drinks this menu can make. It also restores `layers`,
+  because the Realtime Database drops empty arrays. Unknown records are skipped rather than
+  crashing a page.
+- **Layers are ordered, and order is identity.** Two drinks with the same toppings in a different
+  order are different drinks: separate cart lines, separate share codes.
+- **Server timestamps.** Orders and favourites send `{".sv": "timestamp"}`, and the rules require
+  `createdAt === now`, so clients cannot backdate records.
+- **The database rules are in the repo** (`database.rules.json`) and deploy with the app.
 
 ## Where data is stored
 
-**Firebase Realtime Database** (project `my-react-burgerbuilder-app`), accessed over its REST API:
+**Firebase Realtime Database**, accessed over its REST API with the ID token as `?auth=`:
 
 | Path | Used for |
 | --- | --- |
-| `GET /ingredients.json` | Starting ingredient counts. Readable without auth. |
-| `POST /orders.json?auth=<token>` | Placing an order: ingredients, price, contact details, `userId`. |
-| `GET /orders.json?auth=<token>&orderBy="userId"&equalTo="<uid>"` | That account's order history. |
+| `POST /orders.json` | Placing an order: lines, total, fulfilment, contact, `userId`, `createdAt` |
+| `GET /orders.json?orderBy="userId"&equalTo="<uid>"` | That account's order history |
+| `GET/POST /favourites/<uid>.json` | Listing and saving favourites |
+| `DELETE /favourites/<uid>/<id>.json` | Removing a favourite |
 
-**Firebase Authentication** (email/password) through the Identity Toolkit REST API. Orders are
-readable only by the account that placed them, enforced by the database rules.
+The rules deny everything by default. A user can list only their own orders, through that exact
+query. Orders can be created but never edited. `favourites/<uid>` is private to its owner. The
+shape of every write is validated.
 
-**Browser `localStorage`** holds the session under `burger-builder.session` — the ID token, user id
-and expiry timestamp. It is rehydrated on boot and cleared on logout or expiry.
+**Firebase Authentication** (email/password) through the Identity Toolkit REST API.
+
+**Browser `localStorage`** holds the session (`pearl-and-leaf.session`) and the cart
+(`pearl-and-leaf.cart`).
 
 ## Configuration
 
@@ -89,20 +128,20 @@ VITE_FIREBASE_DB_URL=...
 ```
 
 These are committed on purpose. A [Firebase web API key is a public
-identifier](https://firebase.google.com/docs/projects/api-keys), not a credential — it ships in any
-production bundle regardless, and access is controlled by the database rules rather than by keeping
-the key hidden. Override them locally with `.env.local`, which is gitignored.
+identifier](https://firebase.google.com/docs/projects/api-keys), not a credential. It ships in any
+production bundle regardless, and access is controlled by the database rules rather than by
+keeping the key hidden. Override them locally with `.env.local`, which is gitignored.
 
 ## Deployment
 
-Deploys to Firebase Hosting are manual:
+Deploys are manual:
 
 ```bash
 npm run deploy
 ```
 
-That typechecks, builds to `dist/`, and uploads. It uses `npx`, so no global install is needed —
-though `npm install -g firebase-tools` makes it faster if you deploy often.
+That typechecks, builds to `dist/`, and uploads both the site and `database.rules.json`. It uses
+`npx`, so no global install is needed.
 
 First time only, authenticate the CLI (this opens a browser):
 
@@ -110,5 +149,5 @@ First time only, authenticate the CLI (this opens a browser):
 npx --yes firebase-tools login
 ```
 
-CI is separate and needs no credentials: `.github/workflows/ci.yml` runs lint, tests and a build on
+CI is separate and needs no credentials. `.github/workflows/ci.yml` runs lint, tests and a build on
 every push to `master` and every pull request. It never deploys.

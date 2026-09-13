@@ -1,13 +1,13 @@
 {
-  "short_name": "MyBurger",
-  "name": "MyBurger — Burger Builder",
+  "short_name": "Pearl & Leaf",
+  "name": "Pearl & Leaf — build your bubble tea",
   "icons": [
-    { "src": "favicon.ico", "sizes": "64x64 32x32 24x24 16x16", "type": "image/x-icon" },
+    { "src": "favicon.ico", "sizes": "32x32 16x16", "type": "image/x-icon" },
     { "src": "favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" }
   ],
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#070f0a",
-  "background_color": "#070f0a"
+  "theme_color": "#14100d",
+  "background_color": "#14100d"
 }

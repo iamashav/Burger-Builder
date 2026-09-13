@@ -1,4 +1,5 @@
 import { createSelector, createSlice, nanoid, type PayloadAction } from '@reduxjs/toolkit';
+import { STORAGE_PREFIX } from '../data/brand';
 import { parseDrink, priceOf, sameDrink } from '../lib/drink';
 import type { Drink } from '../types/drink';
 
@@ -13,7 +14,7 @@ export interface CartState {
   drawerOpen: boolean;
 }
 
-export const CART_STORAGE_KEY = 'drink-builder.cart';
+export const CART_STORAGE_KEY = `${STORAGE_PREFIX}.cart`;
 export const MAX_QUANTITY = 20;
 
 export function readStoredCart(): CartState {
