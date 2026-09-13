@@ -7,6 +7,14 @@ delivery.
 
 **Live:** https://pearl-and-leaf.web.app
 
+![The builder on desktop: a large taro oat milk tea with cheese foam, mango popping boba and tapioca pearls, beside the toppings tab and the reorderable layer list](docs/screenshots/builder-desktop.png)
+
+<p align="center">
+  <img src="docs/screenshots/builder-mobile.png" width="260" alt="The builder on a phone, showing the layered cup and undo, redo and share controls" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/order-mobile.png" width="260" alt="The order drawer on a phone with two drinks, quantities and a total" />
+</p>
+
 > Grew out of a 2021 React course exercise; redesigned as a different product and rebuilt from
 > scratch in 2026.
 
