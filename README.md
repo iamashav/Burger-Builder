@@ -134,6 +134,28 @@ identifier](https://firebase.google.com/docs/projects/api-keys), not a credentia
 production bundle regardless, and access is controlled by the database rules rather than by
 keeping the key hidden. Override them locally with `.env.local`, which is gitignored.
 
+### API key restrictions
+
+The key is restricted in [Google Cloud → Credentials](https://console.cloud.google.com/apis/credentials?project=pearl-and-leaf)
+so it only works from this app.
+
+| Restriction | Allowed |
+| --- | --- |
+| Websites | `https://pearl-and-leaf.web.app/*`, `https://pearl-and-leaf.firebaseapp.com/*`, `http://localhost:5173/*`, `http://localhost:4173/*` |
+| APIs | Firebase's default set (Firebase APIs enabled on the project); the app itself uses only Identity Toolkit API and Token Service API |
+
+- **Ports are fixed.** `npm run dev` uses 5173 and `npm run preview` uses 4173, both with
+  `strictPort` in `vite.config.ts`. If a port is taken, Vite exits instead of moving to another
+  port, where sign-in would fail with `API_KEY_HTTP_REFERRER_BLOCKED`. Free the port rather than
+  changing it. A new port or domain has to be added to the key's website list first. Google does
+  not accept a wildcard port such as `localhost:*`.
+- **Tests do not need the key.** Vitest stubs `fetch`, so the restrictions never affect
+  `npm test` or CI.
+- **Only sign-in uses the key.** Realtime Database requests are authorised by the user's ID token
+  and `database.rules.json` instead. The broader API list is kept deliberately: the management APIs
+  in it also need an authorised Google account, and no Gemini API is enabled. Enabling Gemini or
+  moving to the Blaze plan is the point to narrow the list to the two APIs above.
+
 ## Deployment
 
 Deploys are manual:
