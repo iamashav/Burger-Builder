@@ -1,11 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import { ErrorState } from '../components/ErrorState/ErrorState';
 import { OrderCard } from '../components/OrderCard/OrderCard';
 import { Spinner } from '../components/Spinner/Spinner';
 import { selectUserId } from '../store/authSlice';
 import { useGetOrdersQuery } from '../store/dbApi';
-import { useAppSelector } from '../store/hooks';
+import { drinkLoaded } from '../store/drinkSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 export function OrdersPage() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const userId = useAppSelector(selectUserId);
   const {
     data: orders,
@@ -31,7 +35,14 @@ export function OrdersPage() {
       {orders && orders.length > 0 && (
         <ul className="grid list-none gap-4 p-0 md:grid-cols-2">
           {orders.map((order) => (
-            <OrderCard key={order.id} order={order} />
+            <OrderCard
+              key={order.id}
+              order={order}
+              onMakeAgain={(drink) => {
+                dispatch(drinkLoaded(drink));
+                navigate('/');
+              }}
+            />
           ))}
         </ul>
       )}
