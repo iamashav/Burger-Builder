@@ -5,6 +5,8 @@ the layers. The cup redraws live, and price, calories and allergens update as yo
 share a drink as a link, save favourites to your account, and order several drinks for pickup or
 delivery.
 
+**Live:** https://pearl-and-leaf.web.app
+
 > Grew out of a 2021 React course exercise; redesigned as a different product and rebuilt from
 > scratch in 2026.
 
