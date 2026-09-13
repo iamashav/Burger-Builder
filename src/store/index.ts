@@ -3,6 +3,8 @@ import { authApi } from './authApi';
 import { authReducer, readStoredSession } from './authSlice';
 import { burgerReducer } from './burgerSlice';
 import { dbApi } from './dbApi';
+import { drinkReducer } from './drinkSlice';
+import { filtersReducer } from './filtersSlice';
 import { listenerMiddleware } from './listeners';
 
 export function createStore(preloadedAuth = readStoredSession()) {
@@ -10,6 +12,8 @@ export function createStore(preloadedAuth = readStoredSession()) {
     reducer: {
       auth: authReducer,
       burger: burgerReducer,
+      drink: drinkReducer,
+      filters: filtersReducer,
       [dbApi.reducerPath]: dbApi.reducer,
       [authApi.reducerPath]: authApi.reducer,
     },
